@@ -1,0 +1,19 @@
+[package]
+name = "worker_logger"
+version = "0.1.0"
+description = "A logger implementation for Cloudflare Workers"
+homepage = "https://github.com/RedL0tus/worker_logger"
+repository = "https://github.com/RedL0tus/worker_logger"
+keywords = [ "Cloudflare", "worker", "serverless", "logger", "wasm" ]
+readme = "README.md"
+license = "MIT OR Apache-2.0"
+categories = [ "wasm", "web-programming" ]
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+log = "^0.4"
+worker = "^0.0"
+humantime = "^2.1"
+env_logger = "^0.9"
