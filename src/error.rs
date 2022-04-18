@@ -11,20 +11,15 @@ use std::fmt;
 use std::error::Error;
 
 /// Error type of the crate
-#[derive(Debug)]
-pub enum WorkerLoggerError {
-    /// Error from the `worker` crate
-    WorkerError(WorkerError),
-    /// Error from the `log` crate
-    LoggerError(SetLoggerError),
+#[derive(Clone, Debug)]
+pub struct WorkerLoggerError {
+    /// Error string
+    message: String,
 }
 
 impl fmt::Display for WorkerLoggerError {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{}", match self {
-            Self::WorkerError(e) => format!("WorkerError: {}", e),
-            Self::LoggerError(e) => format!("LoggerError: {}", e),
-        })
+        write!(f, "{}", self.message)
     }
 }
 
@@ -32,12 +27,16 @@ impl Error for WorkerLoggerError {}
 
 impl From<WorkerError> for WorkerLoggerError {
     fn from(e: WorkerError) -> Self {
-        Self::WorkerError(e)
+        Self {
+            message: format!("{}", e),
+        }
     }
 }
 
 impl From<SetLoggerError> for WorkerLoggerError {
     fn from(e: SetLoggerError) -> Self {
-        Self::LoggerError(e)
+        Self {
+            message: format!("{}", e),
+        }
     }
 }
