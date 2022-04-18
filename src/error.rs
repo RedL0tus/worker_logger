@@ -14,7 +14,7 @@ use std::error::Error;
 #[derive(Clone, Debug)]
 pub struct WorkerLoggerError {
     /// Error string
-    message: String,
+    pub message: String,
 }
 
 impl fmt::Display for WorkerLoggerError {
@@ -38,5 +38,11 @@ impl From<SetLoggerError> for WorkerLoggerError {
         Self {
             message: format!("{}", e),
         }
+    }
+}
+
+impl From<WorkerLoggerError> for WorkerError {
+    fn from(e: WorkerLoggerError) -> WorkerError {
+        WorkerError::RustError(e.message)
     }
 }
