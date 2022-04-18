@@ -1,6 +1,6 @@
 [package]
 name = "worker_logger"
-version = "0.1.1"
+version = "0.1.2"
 description = "A logger implementation for Cloudflare Workers"
 homepage = "https://github.com/RedL0tus/worker_logger"
 repository = "https://github.com/RedL0tus/worker_logger"
