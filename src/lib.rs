@@ -27,13 +27,9 @@
 //! worker_logger::init_with_env(env, "LOG");
 //! ```
 
-pub mod error;
-
 use log::{Level, Metadata, Record, set_max_level, set_boxed_logger, debug};
-use worker::{Env as WorkerEnv, console_log, Date};
+use worker::{Env as WorkerEnv, console_log, Date, Error as WorkerError};
 use env_logger::filter::{Builder, Filter};
-
-pub use error::WorkerLoggerError;
 
 /// Main logger struct
 #[derive(Debug)]
@@ -88,19 +84,17 @@ impl log::Log for Logger {
 }
 
 /// Initialize and install a logger with a string
-pub fn init_with_string<S: AsRef<str>>(init_string: S) -> Result<(), WorkerLoggerError> {
+pub fn init_with_string<S: AsRef<str>>(init_string: S) {
     Logger::new(init_string).set_logger();
-    Ok(())
 }
 
 /// Initialize and install a logger with a `log::Level`
-pub fn init_with_level(level: &Level) -> Result<(), WorkerLoggerError> {
+pub fn init_with_level(level: &Level) {
     Logger::new(level.as_str()).set_logger();
-    Ok(())
 }
 
 /// Initialize and install a logger with a Cloudflare Workers environment variable
-pub fn init_with_env<S: AsRef<str>>(env: &WorkerEnv, env_name: S) -> Result<(), WorkerLoggerError> {
+pub fn init_with_env<S: AsRef<str>>(env: &WorkerEnv, env_name: S) -> Result<(), WorkerError> {
     Logger::new(env.var(env_name.as_ref())?.to_string()).set_logger();
     Ok(())
 }
