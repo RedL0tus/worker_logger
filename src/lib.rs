@@ -5,16 +5,13 @@
 //!
 //! # Example
 //!
-//! Initialize the logger with a string. This crate uses the same filter syntax as
-//! [`env_logger`](https://crates.io/crates/env_logger):
+//! Initialize the logger with a string:
 //!
 //! ```rust
 //! worker_logger::init_with_string("info");
 //! ```
 //!
-//! For more details, please visit <https://docs.rs/env_logger/latest/env_logger/#enabling-logging>
-//!
-//! Or initialize with a set level:
+//! Or initialize with a level struct:
 //!
 //! ```rust
 //! use log::Level;
@@ -24,29 +21,57 @@
 //! Or with a Cloudflare Worker environment variable:
 //!
 //! ```rust,ignore
-//! worker_logger::init_with_env(env, "LOG");
+//! worker_logger::init_with_env(env, "LOG")?;
 //! ```
+//!
+//! # Features
+//!
+//!  - `env_logger_string`: Enables advanced logging filters. Uses the same syntax as
+//!    [`env_logger`](https://crates.io/crates/env_logger). For more details, please visit
+//!    <https://docs.rs/env_logger/latest/env_logger/#enabling-logging>.
 
-use log::{Level, Metadata, Record, set_max_level, set_boxed_logger, debug};
+use log::{Level, Metadata, Record, debug, set_max_level};
 use worker::{Env as WorkerEnv, console_log, console_debug, console_error, console_warn, Date, Error as WorkerError};
+#[cfg(feature = "env_logger_string")]
 use env_logger::filter::{Builder, Filter};
+
+#[cfg(feature = "env_logger_string")]
+use log::set_boxed_logger;
+
+#[cfg(not(feature = "env_logger_string"))]
+use log::set_logger;
+
+#[cfg(not(feature = "env_logger_string"))]
+use std::str::FromStr;
+
+#[cfg(not(feature = "env_logger_string"))]
+static WORKER_LOGGER: Logger = Logger {};
 
 /// Main logger struct
 #[derive(Debug)]
 pub struct Logger {
+    #[cfg(feature = "env_logger_string")]
     filter: Filter,
 }
 
 impl Logger {
     /// Initialize the logger with a string
     pub fn new<S: AsRef<str>>(init_string: S) -> Self {
-        let mut builder = Builder::new();
-        builder.parse(init_string.as_ref());
-        Logger{
-            filter: builder.build(),
+        #[cfg(not(feature = "env_logger_string"))]
+        {
+            let level = Level::from_str(init_string.as_ref());
+            if let Err(ref e) = level {
+                console_debug!("Failed to parse log level string, fallback to info: {}", e);
+            }
+            set_max_level(level.unwrap_or(Level::Info).to_level_filter());
+        }
+        Logger {
+            #[cfg(feature = "env_logger_string")]
+            filter: Builder::new().parse(init_string.as_ref()).build(),
         }
     }
 
+    #[cfg(feature = "env_logger_string")]
     /// Set the logger instance as the main logger
     pub fn set_logger(self) {
         set_max_level(self.filter.filter());
@@ -54,16 +79,43 @@ impl Logger {
         if let Err(e) = result {
             debug!("Logger installation failed: {}", e);
         }
+        #[cfg(not(feature = "env_logger_string"))]
+        {
+            let result = set_logger(&WORKER_LOGGER);
+            if let Err(e) = result {
+                debug!("Logger installation failed: {}", e);
+            }
+        }
+    }
+
+    #[cfg(not(feature = "env_logger_string"))]
+    /// Set the logger instance as the main logger
+    pub fn set_logger(self) {
+        let result = set_logger(&WORKER_LOGGER);
+        if let Err(e) = result {
+            debug!("Logger installation failed: {}", e);
+        }
     }
 }
 
 impl log::Log for Logger {
+    #[cfg(feature = "env_logger_string")]
     fn enabled(&self, metadata: &Metadata) -> bool {
         self.filter.enabled(metadata)
     }
 
+    #[cfg(not(feature = "env_logger_string"))]
+    fn enabled(&self, metadata: &Metadata) -> bool {
+        metadata.level() <= log::max_level()
+    }
+
     fn log(&self, record: &Record) {
+        #[cfg(feature = "env_logger_string")]
         if !self.filter.matches(record) {
+            return;
+        }
+        #[cfg(not(feature = "env_logger_string"))]
+        if !self.enabled(record.metadata()) {
             return;
         }
         let target = if record.file().is_some() && record.line().is_some() {

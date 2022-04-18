@@ -12,7 +12,11 @@ edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
+[features]
+default = [ ]
+env_logger_string = [ "env_logger" ]
+
 [dependencies]
 log = "^0.4"
 worker = "^0.0"
-env_logger = "^0.9"
+env_logger = { version = "^0.9", optional = true }
