@@ -28,7 +28,7 @@
 //! ```
 
 use log::{Level, Metadata, Record, set_max_level, set_boxed_logger, debug};
-use worker::{Env as WorkerEnv, console_log, Date, Error as WorkerError};
+use worker::{Env as WorkerEnv, console_log, console_debug, console_error, console_warn, Date, Error as WorkerError};
 use env_logger::filter::{Builder, Filter};
 
 /// Main logger struct
@@ -71,13 +71,19 @@ impl log::Log for Logger {
         } else {
             record.target().to_string()
         };
-        console_log!(
+        let text = format!(
             "[{time} {level} {target}] {text}",
             time = Date::now().to_string(),
             level = record.level(),
             target = target,
             text = record.args()
         );
+        match record.level() {
+            Level::Debug => console_debug!("{}", text),
+            Level::Error => console_error!("{}", text),
+            Level::Warn => console_warn!("{}", text),
+            _ => console_log!("{}", text),
+        }
     }
 
     fn flush(&self) {}
