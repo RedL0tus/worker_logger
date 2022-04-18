@@ -29,6 +29,7 @@
 //!  - `env_logger_string`: Enables advanced logging filters. Uses the same syntax as
 //!    [`env_logger`](https://crates.io/crates/env_logger). For more details, please visit
 //!    <https://docs.rs/env_logger/latest/env_logger/#enabling-logging>.
+//!  - `color`: Enable colored output with [`colored`](https://crates.io/crates/colored).
 
 use log::{Level, Metadata, Record, debug, set_max_level};
 use worker::{Env as WorkerEnv, console_log, console_debug, console_error, console_warn, Date, Error as WorkerError};
@@ -43,6 +44,9 @@ use log::set_logger;
 
 #[cfg(not(feature = "env_logger_string"))]
 use std::str::FromStr;
+
+#[cfg(feature = "color")]
+use colored::Colorize;
 
 #[cfg(not(feature = "env_logger_string"))]
 static WORKER_LOGGER: Logger = Logger {};
@@ -65,6 +69,8 @@ impl Logger {
             }
             set_max_level(level.unwrap_or(Level::Info).to_level_filter());
         }
+        #[cfg(feature = "color")]
+        colored::control::set_override(true);
         Logger {
             #[cfg(feature = "env_logger_string")]
             filter: Builder::new().parse(init_string.as_ref()).build(),
@@ -123,18 +129,28 @@ impl log::Log for Logger {
         } else {
             record.target().to_string()
         };
-        let text = format!(
-            "[{time} {level} {target}] {text}",
+        let level = record.level().to_string();
+        #[cfg(feature = "color")]
+        let level = match record.level() {
+            Level::Error => level.red(),
+            Level::Warn => level.yellow(),
+            Level::Info => level.cyan(),
+            Level::Debug => level.purple(),
+            _ => level.normal(),
+        };
+        let prompt = format!(
+            "[{time} {level} {target}]",
             time = Date::now().to_string(),
-            level = record.level(),
+            level = level,
             target = target,
-            text = record.args()
         );
+        #[cfg(feature = "color")]
+        let prompt = prompt.bold();
         match record.level() {
-            Level::Debug => console_debug!("{}", text),
-            Level::Error => console_error!("{}", text),
-            Level::Warn => console_warn!("{}", text),
-            _ => console_log!("{}", text),
+            Level::Debug => console_debug!("{} {}", prompt, record.args()),
+            Level::Error => console_error!("{} {}", prompt, record.args()),
+            Level::Warn => console_warn!("{} {}", prompt, record.args()),
+            _ => console_log!("{} {}", prompt, record.args()),
         }
     }
 

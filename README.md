@@ -32,3 +32,4 @@ Features
  - `env_logger_string`: Enables advanced logging filters. Uses the same syntax as
    [`env_logger`](https://crates.io/crates/env_logger). For more details, please visit
    <https://docs.rs/env_logger/latest/env_logger/#enabling-logging>.
+ - `color`: Enable colored output with [`colored`](https://crates.io/crates/colored).
