@@ -15,5 +15,4 @@ edition = "2021"
 [dependencies]
 log = "^0.4"
 worker = "^0.0"
-humantime = "^2.1"
 env_logger = "^0.9"

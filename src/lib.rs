@@ -30,11 +30,8 @@
 pub mod error;
 
 use log::{Level, Metadata, Record, set_max_level, set_boxed_logger};
-use worker::{Env as WorkerEnv, console_log};
+use worker::{Env as WorkerEnv, console_log, Date};
 use env_logger::filter::{Builder, Filter};
-use humantime::Timestamp;
-
-use std::time::SystemTime;
 
 pub use error::WorkerLoggerError;
 
@@ -77,7 +74,7 @@ impl log::Log for Logger {
         };
         console_log!(
             "[{time} {level} {target}] {text}",
-            time = Timestamp::from(SystemTime::now()),
+            time = Date::now().to_string(),
             level = record.level(),
             target = target,
             text = record.args()
