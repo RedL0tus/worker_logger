@@ -762,7 +762,7 @@ checksum = "712e227841d057c1ee1cd2fb22fa7e5a5461ae8e48fa2ca79ec42cfc1931183f"
 [[package]]
 name = "worker"
 version = "0.0.10"
-source = "git+https://github.com/RedL0tus/workers-rs.git?branch=bruh#325968fb91d1cd351df6154bb9c26b56b864cff4"
+source = "git+https://github.com/RedL0tus/workers-rs.git?branch=bruh#2a29c029cc9c4ce36c1dfb72bac2d13dee553343"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -804,7 +804,7 @@ dependencies = [
 [[package]]
 name = "worker-macros"
 version = "0.0.5"
-source = "git+https://github.com/RedL0tus/workers-rs.git?branch=bruh#325968fb91d1cd351df6154bb9c26b56b864cff4"
+source = "git+https://github.com/RedL0tus/workers-rs.git?branch=bruh#2a29c029cc9c4ce36c1dfb72bac2d13dee553343"
 dependencies = [
  "async-trait",
  "proc-macro2",
@@ -819,7 +819,7 @@ dependencies = [
 [[package]]
 name = "worker-sys"
 version = "0.0.5"
-source = "git+https://github.com/RedL0tus/workers-rs.git?branch=bruh#325968fb91d1cd351df6154bb9c26b56b864cff4"
+source = "git+https://github.com/RedL0tus/workers-rs.git?branch=bruh#2a29c029cc9c4ce36c1dfb72bac2d13dee553343"
 dependencies = [
  "cfg-if",
  "js-sys",
