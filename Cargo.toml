@@ -19,6 +19,6 @@ env_logger_string = [ "env_logger" ]
 
 [dependencies]
 log = "^0.4"
-worker = "^0.0"
+worker = { git = "https://github.com/RedL0tus/workers-rs.git", branch = "bruh" }
 colored = { version = "^2.0", optional = true }
 env_logger = { version = "^0.9", optional = true }
