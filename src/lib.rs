@@ -31,7 +31,7 @@
 //!    <https://docs.rs/env_logger/latest/env_logger/#enabling-logging>.
 //!  - `color`: Enable colored output with [`colored`](https://crates.io/crates/colored).
 
-use log::{debug, set_max_level, Level, Metadata, Record};
+use log::{set_max_level, Level, Metadata, Record};
 use worker::{console_debug, console_error, console_log, console_warn, Date};
 use worker::{Env as WorkerEnv, Error as WorkerError};
 
@@ -85,7 +85,7 @@ impl Logger {
         set_max_level(self.filter.filter());
         let result = set_boxed_logger(Box::new(self));
         if let Err(e) = result {
-            debug!("Logger installation failed: {}", e);
+            console_error!("Logger installation failed: {}", e);
         }
     }
 
@@ -94,7 +94,7 @@ impl Logger {
     pub fn set_logger(self) {
         let result = set_logger(&WORKER_LOGGER);
         if let Err(e) = result {
-            debug!("Logger installation failed: {}", e);
+            console_error!("Logger installation failed: {}", e);
         }
     }
 }
