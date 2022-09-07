@@ -31,8 +31,10 @@
 //!    <https://docs.rs/env_logger/latest/env_logger/#enabling-logging>.
 //!  - `color`: Enable colored output with [`colored`](https://crates.io/crates/colored).
 
-use log::{Level, Metadata, Record, debug, set_max_level};
-use worker::{Env as WorkerEnv, console_log, console_debug, console_error, console_warn, Date, Error as WorkerError};
+use log::{debug, set_max_level, Level, Metadata, Record};
+use worker::{console_debug, console_error, console_log, console_warn, Date};
+use worker::{Env as WorkerEnv, Error as WorkerError};
+
 #[cfg(feature = "env_logger_string")]
 use env_logger::filter::{Builder, Filter};
 
@@ -85,13 +87,6 @@ impl Logger {
         if let Err(e) = result {
             debug!("Logger installation failed: {}", e);
         }
-        #[cfg(not(feature = "env_logger_string"))]
-        {
-            let result = set_logger(&WORKER_LOGGER);
-            if let Err(e) = result {
-                debug!("Logger installation failed: {}", e);
-            }
-        }
     }
 
     #[cfg(not(feature = "env_logger_string"))]
@@ -124,10 +119,9 @@ impl log::Log for Logger {
         if !self.enabled(record.metadata()) {
             return;
         }
-        let target = if record.file().is_some() && record.line().is_some() {
-            format!("{file}:{line}", file=record.file().unwrap(), line=record.line().unwrap())
-        } else {
-            record.target().to_string()
+        let target = match (record.file(), record.line()) {
+            (Some(file), Some(line)) => format!("{}:{}", file, line),
+            _ => record.target().to_string(),
         };
         let level = record.level().to_string();
         #[cfg(feature = "color")]
